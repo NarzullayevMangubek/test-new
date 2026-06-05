@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedagogik Mahorat — Test</title>
+<style>
+  :root {
+    --green:#1a7a4a;--green-light:#e8f5ee;--green-dark:#155e38;
+    --red:#c0392b;--red-light:#fdf0ef;
+    --gray:#f4f5f7;--border:#dde1e7;--text:#1a1d23;--muted:#6b7280;--white:#fff;
+    --radius:12px;--shadow:0 2px 12px rgba(0,0,0,0.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh}
+  .screen{display:none}.screen.active{display:block}
+
+  #home{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem}
+  .logo{width:72px;height:72px;background:var(--green);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-size:36px}
+  .home-title{font-size:clamp(20px,4vw,30px);font-weight:700;text-align:center;margin-bottom:6px}
+  .home-sub{color:var(--muted);text-align:center;margin-bottom:1.5rem;font-size:14px;line-height:1.5}
+  .home-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.5rem;width:100%;max-width:480px;margin-bottom:1rem}
+  .home-card h3{font-size:11px;font-weight:600;margin-bottom:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .pill-row{display:flex;gap:8px;flex-wrap:wrap}
+  .pill{padding:7px 14px;border-radius:50px;border:2px solid var(--border);background:var(--white);font-size:13px;cursor:pointer;transition:all .15s;font-weight:500}
+  .pill.sel{border-color:var(--green);background:var(--green-light);color:var(--green)}
+  .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .stat-box{background:var(--gray);border-radius:8px;padding:12px;text-align:center}
+  .stat-box .num{font-size:22px;font-weight:700;color:var(--green)}
+  .stat-box .lbl{font-size:12px;color:var(--muted);margin-top:2px}
+  .start-btn{width:100%;max-width:480px;padding:15px;background:var(--green);color:white;border:none;border-radius:var(--radius);font-size:16px;font-weight:700;cursor:pointer;transition:background .15s}
+  .start-btn:hover{background:var(--green-dark)}.start-btn:active{transform:scale(.98)}
+
+  #quiz{min-height:100vh;display:flex;flex-direction:column}
+  .quiz-header{background:var(--white);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+  .back-btn{width:34px;height:34px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .back-btn:hover{background:var(--gray)}
+  .prog-wrap{flex:1}
+  .prog-label{font-size:12px;color:var(--muted);margin-bottom:4px;display:flex;justify-content:space-between}
+  .prog-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+  .prog-fill{height:100%;background:var(--green);border-radius:3px;transition:width .3s}
+  .score-badge{background:var(--green-light);color:var(--green);font-weight:700;font-size:13px;padding:5px 11px;border-radius:20px;flex-shrink:0}
+  .quiz-body{flex:1;padding:18px 16px;max-width:680px;margin:0 auto;width:100%}
+  .q-num{font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600}
+  .q-text{font-size:clamp(14px,2.5vw,17px);font-weight:700;line-height:1.5;margin-bottom:18px;background:var(--white);padding:14px 18px;border-radius:var(--radius);border:1px solid var(--border)}
+  .options{display:flex;flex-direction:column;gap:9px}
+  .opt{display:flex;align-items:flex-start;gap:11px;padding:12px 15px;border-radius:var(--radius);border:2px solid var(--border);background:var(--white);cursor:pointer;transition:all .15s;text-align:left;width:100%;font-size:14px;line-height:1.4}
+  .opt:hover:not(:disabled){border-color:var(--green);background:var(--green-light)}
+  .opt .lt{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;transition:all .15s}
+  .opt:hover:not(:disabled) .lt{border-color:var(--green);color:var(--green)}
+  .opt.correct{border-color:var(--green)!important;background:var(--green-light)!important}
+  .opt.correct .lt{background:var(--green);border-color:var(--green);color:white}
+  .opt.wrong{border-color:var(--red)!important;background:var(--red-light)!important}
+  .opt.wrong .lt{background:var(--red);border-color:var(--red);color:white}
+  .opt:disabled{cursor:default}
+  .feedback{margin-top:12px;padding:11px 15px;border-radius:10px;font-size:13px;font-weight:500;line-height:1.5}
+  .feedback.ok{background:var(--green-light);color:#155e38;border:1px solid #a8d5bc}
+  .feedback.bad{background:var(--red-light);color:#922b21;border:1px solid #f1a69e}
+  .next-btn{margin-top:14px;width:100%;padding:13px;background:var(--green);color:white;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;cursor:pointer;display:none}
+  .next-btn:hover{background:var(--green-dark)}.next-btn.vis{display:block}
+
+  #result{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem}
+  .result-card{background:var(--white);border-radius:20px;box-shadow:var(--shadow);padding:2rem 1.5rem;max-width:460px;width:100%;text-align:center}
+  .circle{width:120px;height:120px;border-radius:50%;background:var(--green-light);border:4px solid var(--green);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 1.25rem}
+  .circle .pct{font-size:32px;font-weight:800;color:var(--green)}
+  .circle .csub{font-size:12px;color:var(--muted)}
+  .res-title{font-size:20px;font-weight:800;margin-bottom:6px}
+  .res-desc{color:var(--muted);font-size:14px;margin-bottom:1.5rem}
+  .res-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:1.5rem}
+  .rstat{background:var(--gray);border-radius:10px;padding:12px 6px}
+  .rstat .n{font-size:20px;font-weight:800}
+  .rstat .n.g{color:var(--green)}.rstat .n.r{color:var(--red)}.rstat .n.b{color:#2563eb}
+  .rstat .l{font-size:11px;color:var(--muted);margin-top:2px}
+  .btn-row{display:flex;flex-direction:column;gap:9px}
+  .btn-retry{padding:13px;background:var(--green);color:white;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;cursor:pointer}
+  .btn-retry:hover{background:var(--green-dark)}
+  .btn-home{padding:13px;background:var(--gray);color:var(--text);border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer}
+  .btn-home:hover{background:var(--border)}
+
+  @media(max-width:480px){
+    .quiz-body{padding:12px 10px}
+    .opt{padding:10px 12px;font-size:13px}
+    .q-text{font-size:14px;padding:12px 14px}
+  }
+</style>
+</head>
+<body>
+
+<div id="home" class="screen active">
+  <div class="logo">📚</div>
+  <h1 class="home-title">Pedagogik Mahorat</h1>
+  <p class="home-sub">va Kreativligi — 60 ta rasmiy savol<br>Javoblar aralashtirilgan ✅</p>
+
+  <div class="home-card">
+    <h3>Savollar soni</h3>
+    <div class="pill-row" id="countRow">
+      <div class="pill" data-v="10">10 ta</div>
+      <div class="pill" data-v="20">20 ta</div>
+      <div class="pill" data-v="30">30 ta</div>
+      <div class="pill sel" data-v="60">Hammasi (60)</div>
+    </div>
+  </div>
+
+  <div class="home-card">
+    <h3>Savollar tartibi</h3>
+    <div class="pill-row" id="orderRow">
+      <div class="pill sel" data-v="seq">Ketma-ket</div>
+      <div class="pill" data-v="rand">Aralash 🔀</div>
+    </div>
+  </div>
+
+  <div class="home-card" style="margin-bottom:1.25rem">
+    <h3>Statistika</h3>
+    <div class="stat-row">
+      <div class="stat-box"><div class="num">60</div><div class="lbl">Jami savol</div></div>
+      <div class="stat-box"><div class="num" id="bestScore">—</div><div class="lbl">Eng yaxshi natija</div></div>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startQuiz()">▶ Testni boshlash</button>
+</div>
+
+<div id="quiz" class="screen">
+  <div class="quiz-header">
+    <button class="back-btn" onclick="goHome()">←</button>
+    <div class="prog-wrap">
+      <div class="prog-label">
+        <span id="progText">1 / 60</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    </div>
+    <div class="score-badge" id="scoreBadge">✓ 0</div>
+  </div>
+  <div class="quiz-body">
+    <div class="q-num" id="qNum"></div>
+    <div class="q-text" id="qText"></div>
+    <div class="options" id="opts"></div>
+    <div class="feedback" id="feedback" style="display:none"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQ()">Keyingi →</button>
+  </div>
+</div>
+
+<div id="result" class="screen">
+  <div class="result-card">
+    <div class="circle">
+      <div class="pct" id="resPct"></div>
+      <div class="csub" id="resSub"></div>
+    </div>
+    <div class="res-title" id="resTitle"></div>
+    <div class="res-desc" id="resDesc"></div>
+    <div class="res-stats">
+      <div class="rstat"><div class="n g" id="resOk"></div><div class="l">To'g'ri</div></div>
+      <div class="rstat"><div class="n r" id="resWr"></div><div class="l">Noto'g'ri</div></div>
+      <div class="rstat"><div class="n b" id="resTot"></div><div class="l">Jami</div></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-retry" onclick="startQuiz()">🔄 Qayta urinish</button>
+      <button class="btn-home" onclick="goHome()">🏠 Bosh sahifa</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALL=[{"n": 1, "q": "Pedagogik mahorat – bu…", "opts": ["O‘qituvchi tomonidan pedagogik jarayonni takomillashtirish, optimallashtirish omilidir", "Muayyan loyiha asosida tashkil etiladigan, aniq maqsadga yo‘naltirilgan pedagogik faoliyat jarayonining mazmunidir", "Didaktik hamda tarbiyaviy jarayonning o‘qituvchi tomonidan samarali, mahoratli tarzda tashkil etishdir", "Ta’lim va tarbiyaviy faoliyatda yuqori darajaga erishish va uni doimiy takomillashtirib borish faoliyatidir"], "a": 3}, {"n": 2, "q": "Pedagogik mahoratga to‘g‘ri tavsif berilgan javobni belgilang ?", "opts": ["So‘nggi axborot texnologiyalari va zamonaviy bilimlar bilan qurollangan bo‘lishi", "O‘z kasbiy bilimlarini, ko‘nikma va malakalarni doimiy rivojlantirib borish", "O‘qituvchining shaxsiy va kasbiy fazilatlarini rivojlantirishni belgilovchi xususiyatlar", "Pedagogik- psixologik bilimlarni mukammal egallash"], "a": 2}, {"n": 3, "q": "Antik davr mutaffakkirlari-dan kimlar pedagogning kasb mahorati va no-tiqlik san’ati haqida fikr bildirganlar ?", "opts": ["Aristotel, Gegel, Isey", "Farg‘oniy, Isokrad, Giperid", "Titseron, Esxil, Forobiy", "Suqrot, Platon, Demosfen"], "a": 3}, {"n": 4, "q": "Mahoratli pedagog bo‘lish uchun o‘qituvchi o‘zining qanday xususiyatlari ustida ko‘proq   shug‘ullanishi kerak ?", "opts": ["Odobi, mehnati, bilimi, fidoiyligi", "Talaffuzi, bilimi, muomalasi", "His-tuyg‘usi, bilimi, nutqi, hatti – harakati, odobi", "Nutq madaniyatiga doir bilimlar"], "a": 2}, {"n": 5, "q": "Pedagogik mahorat-ning rivojlanish jarayonining beshta elementdan iborat tizimi berilgan qatorni ko‘rsating", "opts": ["O‘z-o‘zini bilish, o‘z-o‘zini belgilash, o‘z-o‘zini nazorat qilish", "O‘z-o‘zini anglash, o‘z-o‘zini rivojlantirish, o‘z-o‘zini nazorat qilish", "O‘z-o‘zini belgilash, o‘z-o‘zini rivojlantirish, o‘z-o‘zini nazorat qilish", "O‘z-o‘zini bilish, o‘z-o‘zini anglash, o‘z-o‘zini belgilash, o‘z-o‘zini rivojlantirish, o‘z-o‘zini nazorat qilish"], "a": 3}, {"n": 6, "q": "“O‘z kasbining mohir ustasi bo‘lgan, yuksak darajada madaniyatli, o‘z fanini chuqur biladigan, yondosh fanlar sohalarini yaxshi tahlil eta oladigan, tarbiya-lash va o‘qitish uslubiyatini mukammal egallagan mutaxassis” bu... (Ped.ensikl.)", "opts": ["Kreativ pedagog", "Novator pedagog", "Kompetentli pedagog", "Mahoratli pedagog"], "a": 3}, {"n": 7, "q": "Individual pedagogik texnika o‘qituvchining qanday xususiyatlariga bog‘liq?", "opts": ["O‘qituvchining ichki xususiyat lariga bog‘liq", "Kommunikativ, psixologik, fiziologik xususiyatlariga bog‘liq.", "O‘qituvchining yoshi, jinsi, mijozi, fe’l-atvori, salomatligi kabi xususiyatlariga bog‘liq.", "O‘qituvchining mijoziga bog‘liq"], "a": 2}, {"n": 8, "q": "O‘quvchilar qalbiga yo‘l topa olish, ularning mehrini qozonishga qara-tilgan o‘qituvchi-ning pedagogik qobiliyati...", "opts": ["O‘qituvchining pedagogik kompetentligi", "O‘qituvchining pedagogik improvizatorligi", "O‘qituvchining pedagogik mahoratidir", "O‘qituvchining pedagogik kreativligi"], "a": 2}, {"n": 9, "q": "O‘z fikrlarini, kayfiyatini, ho-latini, hissiyotini qosh,ko‘z, yuz muskullarining harakati bilan bayon qilish san’ati nima deb ataladi?", "opts": ["O‘qituvchining mimikasi", "O‘qituvchining pantomimikasi", "O‘qituvchining dilkashligi", "O‘qituvchining aktyorlik mahorati"], "a": 0}, {"n": 10, "q": "O‘qituvchining yoshi, jinsi, mijozi, fe’l-atvori, salomatligi kabi xususiyatlariga bog‘liq pedagogik texnika qanday nomlanadi?", "opts": ["Kreativ pedagogik texnika", "Kompetentli pedagogik texnika", "Individual pedagogik texnika", "Jamoaviy pedagogik texnika"], "a": 2}, {"n": 11, "q": "Insonning atrof-dagi odamlar bilan barqaror, yaqin munosabatda bo‘lishga intilishi..", "opts": ["Muosharat odobi", "Kommunikativ qobiliyat", "Muloqot madaniyati", "O‘qituvchining dilkashligi"], "a": 3}, {"n": 12, "q": "Ongli ravishda yuzaga keltirilgan pedagogik vaziyat bosqichlarini oldindan rejalashtirish nima?", "opts": ["Pedagogik mahorat", "Kreativlik", "Pedagogik texnika", "Konstruktiv qobiliyat"], "a": 3}, {"n": 13, "q": "Nutqda o‘rni bo‘lmagan vaziyatlarda rasmiy so‘zlardan foydalanish nima deyiladi?", "opts": ["Vulgarizm", "Jargon", "Kanselyarizm", "Varvarizm"], "a": 2}, {"n": 14, "q": "Tembr -", "opts": ["Noto‘g‘ri diksiya, so‘zlarni noo‘rin qo‘llash, til qoidalarini buzish.", "Tovushning yoqimliligi, jarangdorligi", "Monotonlik, temporitmning oshib ketishi", "Tovush rangdorligi, yorqinligi hamda uning yoqimliligi va alohidaligidir"], "a": 3}, {"n": 15, "q": "Imij (inglizcha image) so‘zining ma’nosi nima?", "opts": ["“Siymo”, “Timsol”, “Qiyofa” “Tasvir”, “Obraz”", "“Siymo”, “Qiyofa”", "“Qiyofa” “Tasvir”, “Obraz”", "“Timsol”, “Tasvir”, “Obraz”"], "a": 0}, {"n": 16, "q": "Bugungi kunda zamonaviy o‘qituvchining kompetentligini shartli ravishda qanday turlarga ajratish mumkin?", "opts": ["O‘qituvchining umuminsoniy, madaniy kompe-tensiyalariga", "O‘qituvchining kasbiy, shaxsiy, umuminsoniy, madaniy kompetensiyalariga", "O‘qituvchining kasbiy va shaxsiy kompe-tensiyalariga", "O‘qituvchining kasbiy, shaxsiy, madaniy kompetensiyalariga"], "a": 1}, {"n": 17, "q": "“Kompetensiya – bilim, ko‘nikma, mala-ka, qadriyat, boshqa shaxsiy sifatlar, ijobiy natijalar-ni faoliyatdagi ko‘rinishidir”. Bu fikr qaysi o‘zbek olimiga tegishli?", "opts": ["N.Muslimov", "X.Ibragimov", "Sh.Mardonov", "M.Ochilov"], "a": 3}, {"n": 18, "q": "Pedagogik kompetentlik deganda nima tushuniladi?", "opts": ["Pedagog shaxsi, uning tajribasi va kasbiy faoliyatidagi individuallikning yorqin ko‘rinishi", "Pedagogik faoliyatning yuksak darajada rivojlanishi, pedagogning individualligi", "Yuksak darajadagi pedagogik faoliyatning taraqqiy etishi, pedagogik texnikani egallashi, pedagogning tajribasi va kasbiy faoliyatidagi individualligi", "Pedagogik texnikani egallashi va pedagogning shaxsiy tajribasi"], "a": 2}, {"n": 19, "q": "Nutqning madaniyligini ta’minlaydigan qanday kommunikativ sifatlar mavjud?", "opts": ["To‘g‘rilik, mantiqiylik, ifodalilik, boylik, jo‘yalilik", "To‘g‘rilik, aniqlik, mantiqiylik, soflik, jo‘yalilik", "To‘g‘rilik, mantiqiylik, ifodalilik, boylik, jo‘yalilik", "To‘g‘rilik, aniqlik, mantiqiylik, ifodalilik, boylik, soflik, jo‘yalilik"], "a": 3}, {"n": 20, "q": "Kommunikativ nutqning sofligini ta’minlamaydigan, nutqning adabiy til me’yorlariga va jamiyatdagi ma’naviy-axloq qoidalariga yot bo‘lgan unsurlari qaysilar?", "opts": ["Varvarizm, vulgarizm, argo, jargon, parazit so‘zlar", "Varvarizm, vulgarizm, sinonim jargon, parazit so‘zlar", "Varvarizm, vulgarizm, antonim, parazit so‘zlar", "Omonim, vulgarizm, argo, jargon"], "a": 0}, {"n": 21, "q": "Inson his tuyg‘ulari uning ......... namoyon bo‘ladi", "opts": ["Yuzida – yuz mushaklarini qisqarishi va bo‘shashishi natijasida", "Kayfiyatida", "Gavda, qo‘l, oyoq harakatida", "Ko‘zida"], "a": 0}, {"n": 22, "q": "Pedagogik improvizatsiya qaysi holatda namoyon bo‘ladi?", "opts": ["Kutilmagan pedagogik vaziyatda tezkor qaror qabul qilishda", "Nazorat ishlarida", "Standart vaziyatda", "Oldin tayyorlangan ssenariyga qat’iy amal qilinganda"], "a": 0}, {"n": 23, "q": "Pedagogik refleksiyaning mohiyati nimadan iborat?", "opts": ["Darsni rejalashtirish", "Talabalarni tahlil qilish", "Nazorat qilish", "O‘qituvchining o‘z faoliyatini tahlil qilishi"], "a": 3}, {"n": 24, "q": "Pedagogik mahorat tushunchasi qaysi belgilar majmuasi orqali to‘liq ifodalanadi?", "opts": ["Metodik tayyorgarlik va nutq", "Nazorat va baholash", "Kasbiy kompetensiya, shaxsiy sifatlar, ijodkorlik", "Fanni bilish va tajriba"], "a": 2}, {"n": 25, "q": "Pedagogik texnika deganda nima tushuniladi?", "opts": ["Ta’lim standartlari", "O‘qituvchining tashqi va ichki ta’sir vositalari majmuasi", "Dars rejasi tuzish usullari", "Ilmiy tadqiqot usullari"], "a": 1}, {"n": 26, "q": "O‘z-o‘zini bilish, anglash, belgilash, rivojlantirish, nazorat qilish bu:", "opts": ["Pedagogik relaksatsiya", "Pedagogik aksiologiya", "Pedagogik refleksiya", "Pedagogik deontologiya"], "a": 2}, {"n": 27, "q": "“Ustoz muallimsiz qolganda zamon Nodonlikdan qora bo‘lardi jahon” baytining muallifi kim ?", "opts": ["Abu Ali ibn Sino", "Abu Nasr Forobiy", "Abu Rayhon Beruniy", "Abdurahmon Jomiy"], "a": 3}, {"n": 28, "q": "“O‘qituvchi muntazam fan bilan shug‘ullanmog‘i lozim, aks holda u qurigan daraxt va toshga o‘xshab qoladi” Ushbu fikr muallifi kim ?", "opts": ["Abdulla Avloniy", "Yan Amos Komenskiy", "Adolf Disterverg", "V. A Suxomlinskiy"], "a": 2}, {"n": 29, "q": "O‘qituvchi o‘quvchilar bilan muloqot jarayonida paydo bo‘ladigan turli ziddiyatli vaziyatlarni bartaraf etishi uchun...", "opts": ["Ota - onasini o‘quv muassasasiga chaqirtirishi va suhbat o‘tkazib ogohlantirishi kerak", "O‘zi ishlayotgan o‘quv muassasasi rahbariyatiga yordam so‘rab murojaat qilishi kerak", "Avvalo o‘z iqtidoriga, pedagogik va psixologik mahoratiga tayanishi lozim", "Darhol tartibsiz o‘quvchini topib unga nisbatan tarbiyaviy jazo metodini qo‘llashi shart"], "a": 2}, {"n": 30, "q": "Pedagogik mahoratni tizimli-funksional yondashuv asosida talqin etganda, qaysi komponent yetakchi hisoblanadi?", "opts": ["Pedagogik refleksiya", "Metodik bilimlar", "Kasbiy qadriyatlar", "Shaxsiy tajriba"], "a": 0}, {"n": 31, "q": "Pedagogik va aktyorlik faoliyatida qanday o‘xshashliklar bor?", "opts": ["Har ikkalasida estetik his-tuyg‘ular o‘xshash", "Aktyor sahnadagi roli orqali, pedagog turli pedagogik ta’sir vositalari yordamida inson ongida oldindan ko‘zlangan o‘zgarishlarni amalga oshirishga harakat qiladilar.", "Aktyor pedagogik ta’sir vositalari yordamida inson ongiga ta’sir o‘tkazadi", "Aktyor ham pedagog ham sah-nadagi roli orqali inson ongiga ta’sir o‘tkazadi"], "a": 1}, {"n": 32, "q": "“Ustoz shogirdlariga qattiq zulm ham, haddan tashqari ko‘ngilchanlik ham qilmasligi lozim” . Ushbu fikr qaysi allomaga tegishli ?", "opts": ["Abu Nasr Forobiy", "Abu Ali ibn Sino", "Alisher Navoiy", "Abu Rayhon Beruniy"], "a": 0}, {"n": 33, "q": "“Ustoz muallim bo‘lsa beozor, Go‘dak eli bozorda xarsang o‘ynar” Shayx Sa’diyning ushbu bayt bilan ilgari surgan g‘oyasi ?", "opts": ["Ta’lim berishda qat’iyatlikni afzal ko‘rgan", "Axloqiylik va mehribonlik g‘oyasini ilgari surgan", "O‘qituvchi shirinsuxan va beozor bo‘lishi lozim", "Mudarris bola tarbiyasida ma’naviyatli va odil bo‘lishi kerak"], "a": 0}, {"n": 34, "q": "Pedagogik va rejissyorlik faoliyatida qanday o‘xshashliklar bor?", "opts": ["Aktyor sahnadagi roli orqali, pedagog turli pedagogik ta’sir vositalari yordamida inson ongida oldindan ko‘zlangan o‘zgarishlarni amalga oshirishga harakat qiladilar.", "Pedagogik va rejissyorlik faoliyatida o‘xshashliklar yo‘q", "O‘qituvchining o‘quv-tarbiyaviy mashg‘ulot, tadbirlar “sse nariy”sini ishlab chiqishi, unda tinglovchilar faoliyatini boshqarishi bu kasbni rejissyor kasbiga yaqinlashtiradi.", "Rejissyor ham pedagog ham sahnadagi ssenariylar orqali inson ongiga ta’sir o‘tkazadi"], "a": 2}, {"n": 35, "q": "Introvert shaxslarga xos hislatli insonlar ?", "opts": ["Janjalkash, mahmadona kishilar", "Xushmuomalali, quvnoq, doimo xushchaqchaq insonlar", "O‘z-o‘zini nazorat qilishga, ichki xavotirga moyil kishilar", "Badjahl, mensimaydigan"], "a": 2}, {"n": 36, "q": "Quyidagilardan qaysi biri oliy ta’lim o‘qituvchisining pedagogik kompetentligini akmeologik yondashuv nuqtai nazaridan belgilaydi?", "opts": ["Fan mazmunini to‘liq bilishi", "Dars rejalarining mavjudligi", "Ilmiy nashrlar soni", "Kasbiy faoliyatda eng yuqori samaradorlikka intilishi"], "a": 3}, {"n": 37, "q": "Shaxslarning his-tuyg‘usi va psixologik holatlarini qalbdan his etish qanday nomlanadi ?", "opts": ["Pedagogik texnika", "Empatiya", "Pertsepsiya", "Simpatiya"], "a": 1}, {"n": 38, "q": "Noverbal kommunikativ vositalar:", "opts": ["Mimika, pantomimika, ohang, tovush, tembr, diksiya", "Mimika, pantomimika, ohang, tovush, tembr, gap, diksiya", "Jest, tembr, so‘z, mimika, tovush, ritm, diksiya", "Jestikulyatsiya, nutq, diksiya"], "a": 0}, {"n": 39, "q": "Pedagogik mahorat rivojlanishining eng muhim sharti qaysi?", "opts": ["Ish staji", "Doimiy o‘z-o‘zini rivojlantirish", "Dars soni", "Ma’muriy talablar"], "a": 1}, {"n": 40, "q": "Jest (jestikulyatsiya)", "opts": ["insonning bosh hara katlari bo‘lib, u orqali insonning ichki holati, biror bir ob’ektga munosabati ifodalanadi", "insonning oyoq harakatlari bo‘lib, u orqali insonning ichki holati, biror bir ob’ektga munosabati ifodalanadi", "insonning gavda hara katlari bo‘lib, u orqali insonning ichki holati, biror bir ob’ektga munosabati ifodalanadi", "insonning qo‘l harakatlari bo‘lib, u orqali insonning ichki holati, biror bir ob’ektga munosabati ifodalanadi"], "a": 3}, {"n": 41, "q": "O‘quvchilar qalbiga yo‘l topa olish, ularning mehrini qozonishga qaratilgan o‘qituvchining pedagogik qobiliyati...", "opts": ["Muomala madaniyatidir", "O‘qituvchining kommunikativ qobiliyatidir", "O‘qituvchining pedagogik mahoratidir", "Pedagogik muloqot qila olish iqtidoridir"], "a": 2}, {"n": 42, "q": "O‘qituvchining ta’lim jarayonini boshqarish bosqichlari ?", "opts": ["O‘qituvchi to‘g‘ri javobni formal holatda deb qabul qili-shi, asosiy e’tibor o‘qitishning mazmuniga qaratilshi", "O‘qitishga muammoviy fanlararo yondashish, e’tiborni amaliyotga yoki qo‘llashga qaratilganligi", "Rejalashtirish, tashkil etish, o‘quv harakatlari, natijalarni baholash va tahlil qilish", "Holatlar «yuqoridan pastga» qaraladi, asosiy e’tiborning nazariyaga qaratilishi"], "a": 2}, {"n": 43, "q": "Kommunikativ qobiliyatni namoyon etuvchi asosiy komponentni belgilang ?", "opts": ["O‘z sohasi bo‘yicha chuqur bilimga ega bo‘lish", "Pedagogik ta’sir ko‘rsatish", "Mimika va pantomimika", "Nutq madaniyatiga doir bilimlar"], "a": 3}, {"n": 44, "q": "Kommunikativ munosabatda ishontirishning qanday faoliyat shakllari mavjud ?", "opts": ["Mavzu bo‘yicha topshiriq berish, uni mashq qilish, baholash va rag‘batlantirish", "Bahs, munozara, suhbatda o‘qituvchining dadillashuvi, isbot va mantiqqa tayanish", "Nutq madaniyati, munosabatga kirishish madaniyati, o‘z-o‘zini boshqarish munosabati", "Ovozning o‘zgarishi, talaffuz, nutq ohangi asosida o‘quvchilar ongiga s’ezdirmasdan ta’sir qilish"], "a": 1}, {"n": 45, "q": "“Relaksatsiya” qanday holat ?", "opts": ["Jizzakilik va asabiylik, o‘zini boshqara olmaslik", "Jismonan va ruhan bo‘shashish, butunlay osoyishtalik", "Jismonan va ruhan tetiklik, jizzakilik", "Jismoniy charchash, baqirish yoki so‘kish"], "a": 1}, {"n": 46, "q": "Kommunikativ ta’sir etishning qanday shakllari mavjud ?", "opts": ["Tahlil etilgan iboralar, andozaga kiritilgan nutqlar asosida mahorat bilan dars olib borish", "O‘qituvchining tashqi qiyofasini ifodalovchi madaniyati, munosabatga kirishish madaniyati, nutq madaniyati", "O‘z kasbiga bo‘lgan salbiy munosabat, chiqisha olmaslik", "Oldindan o‘quvchilarni ogohlantirish, tezlik bilan o‘quvchilar tafakkuriga ta’sir etish"], "a": 1}, {"n": 47, "q": "Pantomimika bu–", "opts": ["Bosh, bo‘yin harakatidir", "Yuz mushaklarining harakatidir", "Ko‘z, qosh, lablarning harakatidir", "Gavda, qo‘l va oyoqlarning harakatidir"], "a": 3}, {"n": 48, "q": "O‘quvchilarning muloqot asosida ma’naviy madaniyatini shakllantirish mezonlari ifodalanmagan javob ?", "opts": ["Har bir insonning qiziqishlarini hurmat qilish, milliy-ma’naviy madaniyat manbalarini o‘rganish", "Inson hayotida mehnatning o‘rnini tushunish, insonparvarlik, mehr-oqibat, iymon, e’tiqod, milliy qadriyatlarni e’zozlash", "Jizzakilik va asabiylik, o‘zini boshqara olmaslik", "Vatanga muhabbat, sadoqat, o‘z manfaatlarini jamiyat, xalq manfaatlaridan ustun qo‘ymaslik"], "a": 2}, {"n": 49, "q": "Ijtimoiy madaniyatni, kishilik jamiyati madaniyatini aks ettiruvchi bir ko‘zgu bu:", "opts": ["So‘zlashuv uslubi", "Nutq madaniyati", "Nutqiy faoliyat", "Til hodisasi"], "a": 1}, {"n": 50, "q": "O‘qituvchi axloqining amaliy ko‘rinishlaridan biri", "opts": ["Pedagogik odob", "Pedagogik majburiyat", "Pedagogik burch", "Pedagogik takt"], "a": 3}, {"n": 51, "q": "O‘qituvchi o‘quvchilarni o‘zi bilan hamkorlikka jalb eta olishi uchun nima qilishi kerak ?", "opts": ["Sinf jamoasida o‘qituvchi ham ishtirokchi, ham maslahatchi vazifasini bajarmasligi mumkin", "O‘quvchilarning ma’naviy-axloqiy jihatdan dunyoqarashining rivojlanmasligi", "O‘qituvchi o‘quvchilarga pedagogik va psixologik jihatdan to‘g‘ri vazifa qo‘ymasligi mumkin", "Pedagogik fao liyat o‘quvchilarning yosh xususiyatlariga va qiziqish lariga to‘g‘ri kelishi lozim"], "a": 3}, {"n": 52, "q": "Nutqning toza bo‘lishiga xalaqit beruvchi unsurlarni belgilang.", "opts": ["ovoz tembri", "intonatsiya", "Rezonator va diapazon", "Dialektizm va varvarizm"], "a": 3}, {"n": 53, "q": "Diksiya bu:", "opts": ["Aniq talaffuz qilish", "Baland ovozdv talaffuz qilish", "Bir maromda talaffuz qilish", "Ohista talaffuz qilish"], "a": 0}, {"n": 54, "q": "Qaysi yunon faylasufi “Barcha illatlarning kelib chiqishi ilmsizlikdandir” degan fikrlarni aytgan?", "opts": ["Suqrot", "Demokrit", "Arastu", "Platon"], "a": 0}, {"n": 55, "q": "Qaysi faylasuf olim  o‘quvchilar bilan savol-javob usuli orqali ta’lim-tarbiya berishning suhbat metodiga asos solgan ?", "opts": ["Gorgiy", "Suqrot", "Demosfen", "Platon"], "a": 1}, {"n": 56, "q": "Ichki nutq -", "opts": ["O‘qituvchi ongida hosil bo‘ladigan, kishining og‘iz ochmasdan fikrlashi, mulo­haza yuritishi, o‘ylashidir.", "Kishining og‘iz ochmasdan real tovushlar sifatida yuzaga keladigan nutq", "Tildagi mavjud ifoda vositalaridan foydalangan holda reallikka aylangan fikr", "O‘qituvchi mulohazasi va fikrining til vositasida real tovushlar sifatida yuzaga keladigan nutq"], "a": 0}, {"n": 57, "q": "Qaysi qobiliyat pedagogikaning ta’lim va tarbiyaviy qonuniyatlarini chuqur o‘zlashtirishga yordam beradi?", "opts": ["Didaktik qobiliyat", "Konstruktiv qobiliyat", "Bilish qobiliyati", "Empatik qobiliyat"], "a": 0}, {"n": 58, "q": "Bu qobiliyat talabalarning o‘qituvchi tomonidan turli jamoat ishlariga, to‘garaklarga jalb qila olishida namoyon bo‘ladi.", "opts": ["Empatik qobiliyat", "Anglash (tushunish) qobiliyati", "Pertseptiv qobiliyat", "Tashkilotchilik qobiliyati"], "a": 3}, {"n": 59, "q": "Pedagogik imijning tarkibiga nimalar kiradi?", "opts": ["Kasbiy mahorat, individual xususiyatlar", "Kreativlik, kasbiy mahorat, individual xususiyatlar", "Shaxsiy sifatlar, kasbiy mahorat, individual xususiyatlar", "Tashqi ko‘rinish, kasbiy mahorat, individual xususiyatlar"], "a": 3}, {"n": 60, "q": "O‘qituvchi axloqiy-ma’naviy qiyofasini namoyon etuvchi me’yor tuyg‘usi yoki xulq va odob qoidalariga rioya qilishi qanday ataladi?", "opts": ["pedagogik texnika", "Pedagogik nazokat", "Pedagogik madaniyat", "Pedagogik mahorat"], "a": 1}];
+const LT=['A','B','C','D'];
+let pool=[],cur=0,score=0,answered=false,cfg={count:60,order:'seq'};
+
+document.querySelectorAll('#countRow .pill').forEach(p=>p.addEventListener('click',()=>{
+  document.querySelectorAll('#countRow .pill').forEach(x=>x.classList.remove('sel'));
+  p.classList.add('sel');cfg.count=parseInt(p.dataset.v);
+}));
+document.querySelectorAll('#orderRow .pill').forEach(p=>p.addEventListener('click',()=>{
+  document.querySelectorAll('#orderRow .pill').forEach(x=>x.classList.remove('sel'));
+  p.classList.add('sel');cfg.order=p.dataset.v;
+}));
+
+const sv=localStorage.getItem('ptm2_best');
+if(sv) document.getElementById('bestScore').textContent=sv+'%';
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function goHome(){show('home');}
+
+function startQuiz(){
+  let arr=[...ALL];
+  if(cfg.order==='rand') arr=arr.sort(()=>Math.random()-.5);
+  pool=arr.slice(0,cfg.count);
+  cur=0;score=0;
+  show('quiz');renderQ();
+}
+
+function renderQ(){
+  const q=pool[cur],total=pool.length;
+  answered=false;
+  document.getElementById('progText').textContent=(cur+1)+' / '+total;
+  document.getElementById('progFill').style.width=Math.round(cur/total*100)+'%';
+  document.getElementById('scoreBadge').textContent='✓ '+score;
+  document.getElementById('qNum').textContent='Savol '+(cur+1)+' / '+total;
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('nextBtn').classList.remove('vis');
+  const od=document.getElementById('opts');
+  od.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt';
+    btn.innerHTML='<span class="lt">'+LT[i]+'</span><span>'+opt+'</span>';
+    btn.onclick=()=>pick(i);
+    od.appendChild(btn);
+  });
+}
+
+function pick(idx){
+  if(answered)return;
+  answered=true;
+  const q=pool[cur];
+  const btns=document.querySelectorAll('.opt');
+  btns.forEach(b=>b.disabled=true);
+  btns[q.a].classList.add('correct');
+  const fb=document.getElementById('feedback');
+  if(idx===q.a){
+    score++;
+    document.getElementById('scoreBadge').textContent='✓ '+score;
+    fb.className='feedback ok';
+    fb.textContent="✅ To'g'ri javob!";
+  }else{
+    btns[idx].classList.add('wrong');
+    fb.className='feedback bad';
+    fb.textContent="❌ Noto'g'ri. To'g'ri: "+LT[q.a]+') '+q.opts[q.a];
+  }
+  fb.style.display='block';
+  const nb=document.getElementById('nextBtn');
+  nb.textContent=cur+1<pool.length?'Keyingi →':'📊 Natijalar';
+  nb.classList.add('vis');
+}
+
+function nextQ(){cur++;if(cur>=pool.length)showResult();else renderQ();}
+
+function showResult(){
+  const total=pool.length,pct=Math.round(score/total*100);
+  const grade=pct>=86?"A'lo! 🏆":pct>=71?"Yaxshi! 👍":pct>=56?"Qoniqarli 😊":"Ko'proq mashq kerak 📚";
+  document.getElementById('resPct').textContent=pct+'%';
+  document.getElementById('resSub').textContent=score+'/'+total;
+  document.getElementById('resTitle').textContent=grade;
+  document.getElementById('resDesc').textContent=total+' ta savoldan '+score+' tasiga to'g'ri javob berdingiz';
+  document.getElementById('resOk').textContent=score;
+  document.getElementById('resWr').textContent=total-score;
+  document.getElementById('resTot').textContent=total;
+  const prev=localStorage.getItem('ptm2_best');
+  if(!prev||pct>parseInt(prev)){localStorage.setItem('ptm2_best',pct);document.getElementById('bestScore').textContent=pct+'%';}
+  show('result');
+}
+</script>
+</body>
+</html>
